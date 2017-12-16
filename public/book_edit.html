@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link type="text/css" rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <div>
+            <a href="index.html">Home</a>
+            <a href="add_book.html">Add book</a>
+            <a href="add_store.html">Add Store</a>
+        </div>
+    </header>
+    <div class="container">
+        <h2>Add a Book</h2>
+        <form id="books_form">
+
+            <div class="form-element">
+                <label>Add a book name:</label>
+                <input type="text" name="name" id="name">
+            </div>
+
+            <div class="form-element">
+                <label>Add the author:</label>
+                <input type="text" name="author" id="author">
+            </div>
+
+            <div class="form-element">
+                <label>Number of pages:</label>
+                <input type="text" name="pages" id="pages">
+            </div>
+
+            <div class="form-element">
+                <label>Price:</label>
+                <input type="text" name="price" id="price">
+            </div>
+
+            <div class="form-element">
+                <label>Stores:</label>
+                <select name="stores" id="stores" multiple>
+                </select>
+            </div>
+
+
+            <div class="form-element">
+                <button type="submit">Edit Book</button>
+                <div class="deletebtn">Delete Book</div>
+            </div>
+
+        </form>
+    
+    </div>
+
+
+    <script>
+         let searchParam=new URLSearchParams(window.location.search);
+            let bookId=searchParam.get('book_id');
+
+        
+             $.ajax({
+                method:'GET',
+                url:'http://localhost:8080/api/store',
+                success:(data,status,xhr)=>{
+
+                    data.map((item)=>{
+                        $('#stores').append($('<option>',{
+                            value:item.name,
+                            text:item.name
+                        }))
+                    })
+                }
+            });
+
+           
+
+
+            $('#books_form').submit((e)=>{
+                e.preventDefault();
+
+                let name=$('#name').val();
+            let author=$('#author').val();
+             let pages= $('#pages').val();
+             let price=$('#price').val();
+             let store=$('#stores').val();
+            
+            $.ajax({
+                method:'PATCH',
+                url:`http://localhost:8080/api/update/book/${bookId}`,
+                contentType:'application/json',
+                data:JSON.stringify({name,author,pages,price,store}),
+                success:(data,status,xhr)=>{
+                   alert('sucessfully updated');
+                   
+                }
+            })
+
+
+            })
+            
+
+            $('.deletebtn').click((e)=>{
+           
+            $.ajax({
+                type:'DELETE',
+                url:`http://localhost:8080/api/delete/book/${bookId}`,
+                success:(data,status,xhr)=>{
+                    alert('deleted successfully');
+                    
+                }
+            })
+        })
+
+
+            $.ajax({
+                type:'GET',
+                url:`http://localhost:8080/api/book/${bookId}`,
+                success:(data,status,xhr)=>{
+                    $('#name').val(data.name);
+                    $('#author').val(data.author);
+                    $('#pages').val(data.pages);
+                    $('#price').val(data.price);
+                    $('#stores').val(data.store);
+                }
+            })
+    </script>
+
+</body>
+
+</html>
